@@ -2,6 +2,7 @@
 #include <charconv>
 #include <string>
 
+#include "obse/PluginAPI.h"
 #include "obse/GameData.h"
 #include "obse/ModTable.h"
 #include "obse/ScriptUtils.h"
@@ -9,6 +10,31 @@
 #include <nlohmann/json.hpp>
 
 #include "definitions.hpp"
+
+/**
+ * Convert a TESForm into its string representation.
+ *
+ * Given a TESForm, return the string representation in the form of
+ * "plugin.esp:00000000". This should help with storing forms in a load
+ * order-independent manner.
+ *
+ * Originally adapted from GetFormIDString in Commands_Script.cpp from OBSE.
+ *
+ * @param form TESForm to get a string representation for.
+ * @return String representing the form.
+ */
+std::string form_to_string(TESForm *form)
+{
+    std::string form_string;
+
+    char form_id_string[OBSEPLUGIN_REF_ID_LENGTH] = {0};
+    const char *mod_name = (*g_dataHandler)->GetNthModName(form->GetModIndex());
+    sprintf_s(form_id_string, sizeof(form_id_string), "%08X", form->refID);
+    form_string = std::string(form_id_string) + ":" + std::string(mod_name);
+    free(&mod_name);
+
+    return form_string;
+}
 
 /**
  * Convert an std::vector into an OBSEArray.
@@ -24,9 +50,10 @@
 template <class T> OBSEArray *vectorToOBSEAarray(const std::vector<T> &std_vector, Script *calling_script)
 {
     std::vector<OBSEElement> obse_vector;
-    for (auto &element : std_vector)
+    for (std::string element : std_vector)
     {
-        obse_vector.push_back(element);
+        OBSEElement stringElem = OBSEElement(element.c_str());
+        obse_vector.push_back(stringElem);
     }
     OBSEArray *obse_array = kOBSEArrayVar->CreateArray(&obse_vector[0], obse_vector.size(), calling_script);
     return obse_array;
@@ -45,11 +72,6 @@ nlohmann::json *obsearray_to_json(OBSEArray *obse_array)
         {
             for (int i = 0; i < size; i++)
             {
-                switch (elements[i].GetType())
-                {
-                case kDataType_Numeric:
-                }
-
                 std::optional<std::string> key;
                 switch (keys[i].GetType())
                 {
@@ -75,6 +97,7 @@ nlohmann::json *obsearray_to_json(OBSEArray *obse_array)
         free(keys);
         free(elements);
     }
+    return &data;
 }
 
 /**
@@ -130,29 +153,4 @@ UInt32 string_to_form_id(std::string form_string)
     }
 
     return result;
-}
-
-/**
- * Convert a TESForm into its string representation.
- *
- * Given a TESForm, return the string representation in the form of
- * "plugin.esp:00000000". This should help with storing forms in a load
- * order-independent manner.
- *
- * Originally adapted from GetFormIDString in Commands_Script.cpp from OBSE.
- *
- * @param form TESForm to get a string representation for.
- * @return String representing the form.
- */
-std::string form_to_string(TESForm *form)
-{
-    std::string form_string;
-
-    char form_id_string[OBSEPLUGIN_REF_ID_LENGTH] = {0};
-    const char *mod_name = (*g_dataHandler)->GetNthModName(form->GetModIndex());
-    sprintf_s(form_id_string, sizeof(form_id_string), "%08X", form->refID);
-    form_string = std::string(form_id_string) + ":" + std::string(mod_name);
-    free(&mod_name);
-
-    return form_string;
 }

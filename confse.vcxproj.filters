@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="exports.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="lib">
+      <UniqueIdentifier>{1e815d83-d0ee-4b70-a9a0-4bb90a78d9a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\nlohmann">
+      <UniqueIdentifier>{e22c4b43-267f-42a6-b468-2f8342d34f24}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="nlohmann\adl_serializer.hpp">
+      <Filter>lib\nlohmann</Filter>
+    </ClInclude>
+    <ClInclude Include="nlohmann\byte_container_with_subtype.hpp">
+      <Filter>lib\nlohmann</Filter>
+    </ClInclude>
+    <ClInclude Include="nlohmann\json.hpp">
+      <Filter>lib\nlohmann</Filter>
+    </ClInclude>
+    <ClInclude Include="nlohmann\json_fwd.hpp">
+      <Filter>lib\nlohmann</Filter>
+    </ClInclude>
+    <ClInclude Include="nlohmann\ordered_map.hpp">
+      <Filter>lib\nlohmann</Filter>
+    </ClInclude>
+    <ClInclude Include="jsonfile.hpp" />
+    <ClInclude Include="commands.hpp" />
+    <ClInclude Include="converters.hpp" />
+    <ClInclude Include="definitions.hpp" />
+    <ClInclude Include="jsonutils.hpp" />
+  </ItemGroup>
+</Project>

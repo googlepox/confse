@@ -63,28 +63,27 @@ extern "C"
         if (!obse->isEditor)
         {
             kOblivionDirectory = std::filesystem::canonical(std::filesystem::path(obse->GetOblivionDirectory()));
-            LOGMESSAGE("Game directory: %s", kOblivionDirectory.c_str());
+            LOGMESSAGE("Game directory: %s", kOblivionDirectory.string().c_str());
         }
 
         obse->SetOpcodeBase(OBSEPLUGIN_OPCODE_BASE);
 
-        /*
-        obse->RegisterTypedCommand(&objson::scriptcommands::commandinfo_get_string, kRetnType_String);
-        obse->RegisterCommand(&objson::scriptcommands::commandinfo_set_string);
+        
+        obse->RegisterTypedCommand(&commandinfo_get_string, kRetnType_String);
+        obse->RegisterCommand(&commandinfo_set_string);
 
-        obse->RegisterCommand(&objson::scriptcommands::commandinfo_get_float);
-        obse->RegisterCommand(&objson::scriptcommands::commandinfo_set_float);
+        obse->RegisterCommand(&commandinfo_get_float);
+        obse->RegisterCommand(&commandinfo_set_float);
 
-        obse->RegisterCommand(&objson::scriptcommands::commandinfo_get_int);
-        obse->RegisterCommand(&objson::scriptcommands::commandinfo_set_int);
+        obse->RegisterCommand(&commandinfo_get_int);
+        obse->RegisterCommand(&commandinfo_set_int);
 
-        obse->RegisterTypedCommand(&objson::scriptcommands::commandinfo_get_form, kRetnType_Form);
-        obse->RegisterCommand(&objson::scriptcommands::commandinfo_set_form);
+        obse->RegisterTypedCommand(&commandinfo_get_form, kRetnType_Form);
+        obse->RegisterCommand(&commandinfo_set_form);
 
-        obse->RegisterCommand(&objson::scriptcommands::commandinfo_erase_key);
+        obse->RegisterCommand(&commandinfo_erase_key);
 
-        obse->RegisterTypedCommand(&objson::scriptcommands::commandinfo_list_keys, kRetnType_Array);
-        */
+        obse->RegisterTypedCommand(&commandinfo_list_keys, kRetnType_Array);
 
         LOGMESSAGE("OBSEPlugin_Load finished");
         return true;

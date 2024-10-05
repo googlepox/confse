@@ -5,18 +5,18 @@
 #include "definitions.hpp"
 #include "converters.hpp"
 #include "jsonutils.hpp"
+#include <jsonfile.hpp>
 
 static bool get_string(COMMAND_ARGS)
 {
-    char filename[ARG_MAX_CHARS], key[ARG_MAX_CHARS], default_return[ARG_MAX_CHARS];
+    char filename[ARG_MAX_CHARS], key[ARG_MAX_CHARS];
 
-    if (ExtractArgs(PASS_EXTRACT_ARGS, &filename, &key, &default_return))
+    if (ExtractArgs(PASS_EXTRACT_ARGS, &filename, &key))
     {
-        std::string temp_str(default_return);
+        std::string temp_str;
         objson::jsonfile json_file(filename);
-        json_file.get_entry(key, temp_str);
+        temp_str = json_file.get_entry(key, temp_str);
         kOBSEStringVar->Assign(PASS_COMMAND_ARGS, temp_str.c_str());
-        *result = 0;
         return true;
     }
 
@@ -42,13 +42,13 @@ static bool set_string(COMMAND_ARGS)
 static bool get_int(COMMAND_ARGS)
 {
     char filename[ARG_MAX_CHARS], key[ARG_MAX_CHARS];
-    UInt32 default_return = 0;
+    UInt32 returnVal = 0;
 
-    if (ExtractArgs(PASS_EXTRACT_ARGS, &filename, &key, &default_return))
+    if (ExtractArgs(PASS_EXTRACT_ARGS, &filename, &key))
     {
         objson::jsonfile json_file(filename);
-        json_file.get_entry(key, default_return);
-        *result = default_return;
+        returnVal = json_file.get_entry(key, returnVal);
+        *result = returnVal;
         return true;
     }
 
@@ -75,13 +75,13 @@ static bool set_int(COMMAND_ARGS)
 static bool get_float(COMMAND_ARGS)
 {
     char filename[ARG_MAX_CHARS], key[ARG_MAX_CHARS];
-    float default_return;
+    float returnVal;
 
-    if (ExtractArgs(PASS_EXTRACT_ARGS, &filename, &key, &default_return))
+    if (ExtractArgs(PASS_EXTRACT_ARGS, &filename, &key))
     {
         objson::jsonfile json_file(filename);
-        json_file.get_entry(key, default_return);
-        *result = default_return;
+        returnVal = json_file.get_entry(key, returnVal);
+        *result = returnVal;
         return true;
     }
 
@@ -108,15 +108,14 @@ static bool set_float(COMMAND_ARGS)
 static bool get_form(COMMAND_ARGS)
 {
     char filename[ARG_MAX_CHARS], key[ARG_MAX_CHARS];
-    TESForm *default_return;
 
-    if (ExtractArgsEx(PASS_EXTRACT_ARGS_EX, &filename, &key, &default_return))
+    if (ExtractArgsEx(PASS_EXTRACT_ARGS_EX, &filename, &key))
     {
-        (UInt32 *)result = default_return->refID;
-        std::string temp_str("");
+        *result = 0;
+        std::string temp_str = "";
         objson::jsonfile json_file(filename);
-        json_file.get_entry(key, temp_str);
-        string_to_form_id(temp_str, (UInt32 *)result);
+        temp_str = json_file.get_entry(key, temp_str);
+        *result = string_to_form_id(temp_str);
         return true;
     }
 
@@ -165,7 +164,7 @@ static bool list_keys(COMMAND_ARGS)
         objson::jsonfile json_file(filename);
         std::vector<std::string> key_list;
         json_file.list_keys(key, key_list);
-        OBSEArray *obse_array = vector_to_array(key_list, scriptObj);
+        OBSEArray *obse_array = vectorToOBSEAarray(key_list, scriptObj);
         kOBSEArrayVar->AssignCommandResult(obse_array, result);
         *result = 0;
         return true;
@@ -176,8 +175,7 @@ static bool list_keys(COMMAND_ARGS)
 
 ParamInfo params_get_string[3] = {
     {"Filename", kParamType_String, 0},
-    {"Key", kParamType_String, 0},
-    {"Default", kParamType_String, 0}};
+    {"Key", kParamType_String, 0}};
 
 ParamInfo params_set_string[3] = {
     {"Filename", kParamType_String, 0},
@@ -186,8 +184,7 @@ ParamInfo params_set_string[3] = {
 
 ParamInfo params_get_int[3] = {
     {"Filename", kParamType_String, 0},
-    {"Key", kParamType_String, 0},
-    {"Default", kParamType_Integer, 0}};
+    {"Key", kParamType_String, 0}};
 
 ParamInfo params_set_int[3] = {
     {"Filename", kParamType_String, 0},
@@ -196,8 +193,7 @@ ParamInfo params_set_int[3] = {
 
 ParamInfo params_get_float[3] = {
     {"Filename", kParamType_String, 0},
-    {"Key", kParamType_String, 0},
-    {"Default", kParamType_Float, 0}};
+    {"Key", kParamType_String, 0}};
 
 ParamInfo params_set_float[3] = {
     {"Filename", kParamType_String, 0},
@@ -206,8 +202,7 @@ ParamInfo params_set_float[3] = {
 
 ParamInfo params_get_form[3] = {
     {"Filename", kParamType_String, 0},
-    {"Key", kParamType_String, 0},
-    {"Default", kOBSEParamType_Form, 0}};
+    {"Key", kParamType_String, 0}};
 
 ParamInfo params_set_form[3] = {
     {"Filename", kParamType_String, 0},
@@ -228,7 +223,7 @@ CommandInfo commandinfo_get_string = {
     0,
     "Read string value from JSON",
     0,
-    3,
+    2,
     params_get_string,
     get_string};
 
@@ -248,7 +243,7 @@ CommandInfo commandinfo_get_int = {
     0,
     "Read integer value from JSON",
     0,
-    3,
+    2,
     params_get_int,
     get_int};
 
@@ -268,7 +263,7 @@ CommandInfo commandinfo_get_float = {
     0,
     "Read floating point value from JSON",
     0,
-    3,
+    2,
     params_get_float,
     get_float};
 
@@ -288,7 +283,7 @@ CommandInfo commandinfo_get_form = {
     0,
     "Read form value from JSON",
     0,
-    3,
+    2,
     params_get_form,
     get_form};
 
